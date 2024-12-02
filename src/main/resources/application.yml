@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: order_service
+  security:
+    user:
+      name: admin
+      password: admin
+
+  batch:
+    jdbc:
+      initialize-schema: always      
+    job:
+      enabled: true
+      name: processOrdersJob
+  datasource:
+    url: jdbc:postgresql://localhost:5432/db-test-ambev
+    username: admin
+    password: admin
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  sql:
+    init:
+      mode: always
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: order-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      
+resilience4j:
+  retry:
+    external-api:
+      maxAttempts: 3          # Tenta novamente 3 vezes
+      waitDuration: 2s        # Intervalo entre as tentativas
+  circuitbreaker:
+    external-api:
+      failureRateThreshold: 50  # Circuito aberto se 50% das chamadas falharem
+      waitDurationInOpenState: 10s # Tempo que o circuito fica aberto antes de tentar novamente
+      slidingWindowSize: 10    # Número de chamadas na janela
+      
